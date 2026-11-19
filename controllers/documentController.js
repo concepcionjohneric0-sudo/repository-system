@@ -1,4 +1,18 @@
-const Document = require("../models/Document");
+﻿const Document = require("../models/Document");
+
+function normalizeDocPayload(body = {}) {
+  const payload = { ...body };
+  if (payload.year === undefined && payload.yearPublished !== undefined) {
+    payload.year = payload.yearPublished;
+  }
+  if (payload.abstract === undefined && payload.description !== undefined) {
+    payload.abstract = payload.description;
+  }
+  if (payload.year !== undefined && payload.year !== "") {
+    payload.year = Number(payload.year);
+  }
+  return payload;
+}
 
 // GET all documents
 const getDocuments = async (req, res) => {
@@ -26,7 +40,8 @@ const getDocumentById = async (req, res) => {
 // CREATE new document
 const createDocument = async (req, res) => {
   try {
-    const newDoc = await Document.create(req.body);
+    const data = normalizeDocPayload(req.body);
+    const newDoc = await Document.create(data);
     res.status(201).json(newDoc);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -36,9 +51,10 @@ const createDocument = async (req, res) => {
 // UPDATE document by ID
 const updateDocument = async (req, res) => {
   try {
+    const data = normalizeDocPayload(req.body);
     const updatedDoc = await Document.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      data,
       { new: true, runValidators: true }
     );
     if (!updatedDoc) {
