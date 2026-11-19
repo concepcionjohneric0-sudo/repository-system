@@ -1,33 +1,40 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const documentSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-    trim: true
+const documentSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: [true, "Title is required"],
+      trim: true,
+    },
+    author: {
+      type: String,
+      required: [true, "Author is required"],
+      trim: true,
+    },
+    category: {
+      type: String,
+      required: [true, "Category is required"],
+      trim: true,
+    },
+    year: {
+      type: Number,
+      required: [true, "Year is required"],
+    },
+    abstract: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    fileUrl: {
+      type: String,
+      trim: true,
+      default: "",
+    },
   },
-  author: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  category: {
-    type: String,
-    required: true,
-    enum: ['Capstone/Thesis', 'Research Paper', 'Module/Handout', 'Administrative Form']
-  },
-  yearPublished: {
-    type: Number,
-    required: true
-  },
-  description: {
-    type: String,
-    required: true
-  },
-  fileLink: {
-    type: String,
-    required: true
+  {
+    timestamps: true,
   }
-}, { timestamps: true });
+);
 
-module.exports = mongoose.model('Document', documentSchema);
+module.exports = mongoose.model("Document", documentSchema);

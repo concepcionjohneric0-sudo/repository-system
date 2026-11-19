@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -17,6 +17,9 @@
 
   <form action="/repositories/<%= repo._id %>/edit" method="POST">
     <input type="text" name="title" value="<%= repo.title %>" required />
+    <input type="text" name="author" value="<%= repo.author %>" required />
+    <input type="text" name="category" value="<%= repo.category %>" required />
+    <input type="number" name="yearPublished" value="<%= repo.yearPublished %>" required />
     <textarea name="description" rows="3" required><%= repo.description %></textarea>
     <input type="text" name="fileUrl" value="<%= repo.fileUrl %>" required />
     <button type="submit">Update Repository</button>

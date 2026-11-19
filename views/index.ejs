@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -10,6 +10,7 @@
     input, textarea, button { padding: 10px; font-size: 14px; }
     button { cursor: pointer; background: #198754; color: #fff; border: none; border-radius: 4px; }
     .repo-card { border: 1px solid #ccc; padding: 14px; border-radius: 6px; margin-bottom: 12px; }
+    .meta { color: #555; font-size: 14px; margin: 4px 0; }
     .actions { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
     .edit-btn { padding: 8px 12px; background: #0d6efd; color: #fff; text-decoration: none; border-radius: 4px; font-size: 14px; }
     .delete-form { border: none; padding: 0; margin: 0; }
@@ -21,6 +22,9 @@
 
   <form class="create-form" action="/repositories" method="POST">
     <input type="text" name="title" placeholder="Title ng repository / document" required />
+    <input type="text" name="author" value="Johneric" placeholder="Author" required />
+    <input type="text" name="category" value="Capstone" placeholder="Category" required />
+    <input type="number" name="yearPublished" value="2026" placeholder="Year Published" required />
     <textarea name="description" placeholder="Description" rows="3" required></textarea>
     <input type="text" name="fileUrl" placeholder="File URL o link (hal. https://...)" required />
     <button type="submit">Save Repository</button>
@@ -33,6 +37,7 @@
     <% repos.forEach(repo => { %>
       <div class="repo-card">
         <h3><%= repo.title %></h3>
+        <p class="meta"><strong>Author:</strong> <%= repo.author %> | <strong>Category:</strong> <%= repo.category %> | <strong>Year:</strong> <%= repo.yearPublished %></p>
         <p><%= repo.description %></p>
         <p><strong>Link:</strong> <a href="<%= repo.fileUrl %>" target="_blank"><%= repo.fileUrl %></a></p>
 

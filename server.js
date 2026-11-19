@@ -1,32 +1,30 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-require('dotenv').config();
-
-const repositoryRoutes = require('./routes/repositoryRoutes');
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
+const connectDB = require("./config/db");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
+
+connectDB();
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
 
-// Para ma-serve ang HTML/CSS/JS files mo kung nasa "public" folder
-app.use(express.static('public'));
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
-// Ito ang magkokonekta sa routes mo para sa pag-load at pag-save ng documents
-app.use('/api/documents', repositoryRoutes);
+app.get("/", (req, res) => {
+  res.send("Digital Repository System is running");
+});
 
-mongoose
-  .connect(MONGO_URI)
-  .then(() => {
-    console.log('Connected to MongoDB');
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error('MongoDB connection error:', err);
-  });
+const documentRoutes = require("./routes/documentRoutes");
+app.use("/api/documents", documentRoutes);
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
+
