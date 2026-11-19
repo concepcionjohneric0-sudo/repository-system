@@ -1,0 +1,20 @@
+{
+  "name": "digital-repository-system",
+  "version": "1.0.0",
+  "description": "Academic and Document Repository System with CRUD",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "ejs": "^7.0.2",
+    "express": "^4.22.3",
+    "mongoose": "^8.24.10"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

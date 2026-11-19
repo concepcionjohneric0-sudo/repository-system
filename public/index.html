@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Academic Repository System</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+    .container { max-width: 1100px; margin: auto; }
+    header { background: #1e3a8a; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    header h1 { margin: 0; font-size: 1.6rem; }
+    header p { margin: 5px 0 0; opacity: 0.85; font-size: 0.9rem; }
+    .grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+    @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+    h2 { margin-top: 0; font-size: 1.2rem; color: #1e3a8a; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 0.9rem; }
+    input, select, textarea { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 5px; font-size: 0.95rem; }
+    button { background: #1e3a8a; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: 600; width: 100%; }
+    button:hover { background: #1d4ed8; }
+    .btn-secondary { background: #64748b; margin-top: 8px; display: none; }
+    .filters { display: flex; gap: 10px; margin-bottom: 15px; }
+    .doc-item { border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; margin-bottom: 12px; background: #fafafa; }
+    .doc-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .doc-title { font-weight: bold; font-size: 1.1rem; color: #0f172a; margin: 0; }
+    .badge { background: #dbeafe; color: #1e40af; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+    .doc-meta { font-size: 0.85rem; color: #475569; margin: 6px 0; }
+    .doc-desc { font-size: 0.9rem; color: #334155; margin-bottom: 10px; }
+    .actions { display: flex; gap: 8px; }
+    .actions a, .actions button { width: auto; padding: 6px 12px; font-size: 0.85rem; text-decoration: none; border-radius: 4px; }
+    .btn-view { background: #059669; color: white; }
+    .btn-edit { background: #d97706; color: white; }
+    .btn-delete { background: #dc2626; color: white; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Digital Academic & Document Repository</h1>
+      <p>Centralized Archive for Research Papers, Capstone Projects, and Institutional Records</p>
+    </header>
+
+    <div class="grid">
+      <!-- FORM SECTION (CREATE & UPDATE) -->
+      <div class="card">
+        <h2 id="formTitle">Add New Document</h2>
+        <form id="docForm">
+          <input type="hidden" id="docId">
+          <div class="form-group">
+            <label>Document Title</label>
+            <input type="text" id="title" required placeholder="e.g., Smart Waste Management System">
+          </div>
+          <div class="form-group">
+            <label>Author / Researcher(s)</label>
+            <input type="text" id="author" required placeholder="e.g., Dela Cruz, J. et al.">
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="category" required>
+              <option value="Capstone/Thesis">Capstone/Thesis</option>
+              <option value="Research Paper">Research Paper</option>
+              <option value="Module/Handout">Module/Handout</option>
+              <option value="Administrative Form">Administrative Form</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Year Published</label>
+            <input type="number" id="yearPublished" required min="2000" max="2030" value="2026">
+          </div>
+          <div class="form-group">
+            <label>Abstract / Description</label>
+            <textarea id="description" rows="3" required placeholder="Brief summary of the document..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Document URL (Google Drive / PDF Link)</label>
+            <input type="url" id="fileLink" required placeholder="https://drive.google.com/...">
+          </div>
+          <button type="submit" id="submitBtn">Save to Repository</button>
+          <button type="button" class="btn-secondary" id="cancelEditBtn" onclick="resetForm()">Cancel Edit</button>
+        </form>
+      </div>
+
+      <!-- LIST SECTION (READ & DELETE) -->
+      <div class="card">
+        <h2>Repository Archive</h2>
+        <div class="filters">
+          <input type="text" id="searchInput" placeholder="Search by title or author..." onkeyup="fetchDocuments()">
+          <select id="filterCategory" onchange="fetchDocuments()" style="max-width: 200px;">
+            <option value="All">All Categories</option>
+            <option value="Capstone/Thesis">Capstone/Thesis</option>
+            <option value="Research Paper">Research Paper</option>
+            <option value="Module/Handout">Module/Handout</option>
+            <option value="Administrative Form">Administrative Form</option>
+          </select>
+        </div>
+        <div id="documentList">Loading repository records...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = '/api/documents';
+
+    // READ: Kunin at i-display ang mga dokumento
+    async function fetchDocuments() {
+      const search = document.getElementById('searchInput').value;
+      const category = document.getElementById('filterCategory').value;
+      const res = await fetch(`${API_URL}?search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}`);
+      const docs = await res.json();
+
+      const list = document.getElementById('documentList');
+      if (docs.length === 0) {
+        list.innerHTML = '<p>No documents found in the repository.</p>';
+        return;
+      }
+
+      list.innerHTML = docs.map(doc => `
+        <div class="doc-item">
+          <div class="doc-header">
+            <h3 class="doc-title">${doc.title}</h3>
+            <span class="badge">${doc.category}</span>
+          </div>
+          <div class="doc-meta"><strong>Author:</strong> ${doc.author} | <strong>Year:</strong> ${doc.yearPublished}</div>
+          <div class="doc-desc">${doc.description}</div>
+          <div class="actions">
+            <a href="${doc.fileLink}" target="_blank" class="btn-view">Open File</a>
+            <button class="btn-edit" onclick='editDocument(${JSON.stringify(doc)})'>Edit</button>
+            <button class="btn-delete" onclick="deleteDocument('${doc._id}')">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // CREATE & UPDATE: Form submission
+    document.getElementById('docForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('docId').value;
+      const payload = {
+        title: document.getElementById('title').value,
+        author: document.getElementById('author').value,
+        category: document.getElementById('category').value,
+        yearPublished: Number(document.getElementById('yearPublished').value),
+        description: document.getElementById('description').value,
+        fileLink: document.getElementById('fileLink').value
+      };
+
+      const method = id ? 'PUT' : 'POST';
+      const url = id ? `${API_URL}/${id}` : API_URL;
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        resetForm();
+        fetchDocuments();
+      } else {
+        alert('Error saving document. Please check all fields.');
+      }
+    });
+
+    // I-populate ang form para sa UPDATE
+    function editDocument(doc) {
+      document.getElementById('formTitle').innerText = 'Update Document Record';
+      document.getElementById('submitBtn').innerText = 'Update Document';
+      document.getElementById('cancelEditBtn').style.display = 'block';
+
+      document.getElementById('docId').value = doc._id;
+      document.getElementById('title').value = doc.title;
+      document.getElementById('author').value = doc.author;
+      document.getElementById('category').value = doc.category;
+      document.getElementById('yearPublished').value = doc.yearPublished;
+      document.getElementById('description').value = doc.description;
+      document.getElementById('fileLink').value = doc.fileLink;
+    }
+
+    // DELETE: Burahin ang record
+    async function deleteDocument(id) {
+      if (!confirm('Are you sure you want to delete this document from the repository?')) return;
+      const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+      if (res.ok) fetchDocuments();
+    }
+
+    function resetForm() {
+      document.getElementById('docForm').reset();
+      document.getElementById('docId').value = '';
+      document.getElementById('formTitle').innerText = 'Add New Document';
+      document.getElementById('submitBtn').innerText = 'Save to Repository';
+      document.getElementById('cancelEditBtn').style.display = 'none';
+    }
+
+    // Initial load
+    fetchDocuments();
+  </script>
+</body>
+</html>
